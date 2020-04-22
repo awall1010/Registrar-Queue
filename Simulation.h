@@ -88,23 +88,29 @@ if(!inFS.fail()){
 
     inFS>>clockTick;
     inFS >> numStudents;
-    cout<<"At clock tick "<<clockTick<<" "<<numStudents<<" students arrive "<<endl;
+    cout<<"At clock tick "<<clockTick<<", "<<numStudents<<" students arrive "<<endl;
     for(int j = 0;j<numStudents;++j){
       inFS >> timeNeeded;
       cout<<"Sudent "<<j<<" needs "<<timeNeeded<<" minutes "<<endl;
       // Student *s1 = new Student(timeNeeded);
       reg->addStudent(timeNeeded);
+      Student *s1 = new Student(timeNeeded);
 
-
+      // reg->printStudents();
 
     }
 
+    // for(int i = 0; i < numStudents;++j)
+    //this is where student goes to window
+    // registrar
 
+
+    // cout<<"printing to see "<<endl;
 
 
     }
   }
-  cout<<"Line count: "<<lineCount<<endl;
+  // cout<<"Line count: "<<lineCount<<endl;
 
 }
 
