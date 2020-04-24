@@ -42,14 +42,24 @@ private:
 public:
   int windowsOpen;
   int numStudents;
+  int totalStudents= 0;
   int timeAtWindow;
   int clockTick;
   int timeNeeded;
-  int lineCount = 0;
+  // int lineCount = 0;
+  int time = 0;
   Registrar *reg = new Registrar();
   Simulation();
   ~Simulation();
   void readFile(string fName);
+  void runSim();
+  double avgStuWait;
+  double medWaitTime;
+  double longStuWait;
+  int numOver10;
+  double meanIdle;
+  double longestIdle;
+  int numOver5;
 
 
 
@@ -65,7 +75,6 @@ Simulation::~Simulation(){
 void Simulation::readFile(string fName){
   ifstream inFS;
 
-
   inFS.open(fName);
   if(!inFS.is_open()){
     cout<<"couldn't open file. "<<endl;
@@ -73,48 +82,76 @@ void Simulation::readFile(string fName){
 
   inFS>> windowsOpen;
   cout<<"Windows Open: "<< windowsOpen<<endl;
-
+  reg->newWindow(windowsOpen);
   for(int i = 0;i<windowsOpen;++i){
     reg->createWindow();
 
   }
 
+while(true){
 
-while(!inFS.eof()){
+  inFS>>clockTick;
+  inFS >> numStudents;
+if(inFS.eof()){
+  break;
+}
 
 if(!inFS.fail()){
-
-    lineCount++;
-
-    inFS>>clockTick;
-    inFS >> numStudents;
     cout<<"At clock tick "<<clockTick<<", "<<numStudents<<" students arrive "<<endl;
+    totalStudents+=numStudents;
     for(int j = 0;j<numStudents;++j){
       inFS >> timeNeeded;
       cout<<"Sudent "<<j<<" needs "<<timeNeeded<<" minutes "<<endl;
+      // cout<<endl;
       // Student *s1 = new Student(timeNeeded);
-      reg->addStudent(timeNeeded);
-      Student *s1 = new Student(timeNeeded);
-
-      // reg->printStudents();
-
+      reg->addStudent(clockTick,timeNeeded);
+      // cout<<"added"<<endl;
+      // Student *s1 = new Student(clockTick,timeNeeded);
     }
-
-    // for(int i = 0; i < numStudents;++j)
-    //this is where student goes to window
-    // registrar
-
-
-    // cout<<"printing to see "<<endl;
-
-
+    cout<<endl;
     }
-  }
-  // cout<<"Line count: "<<lineCount<<endl;
-
+}
 }
 
+void Simulation::runSim(){
+  int exitTime = 0;
 
+  //need a clock in a loop
+  while(!reg->noStudents()){
+    if(reg->peekArrival()==time){
+      // int exitTime = time+reg->timeNeededAtWindow;
+      // cout<<"exit time: "<<exitTime<<endl;
+      reg->studentToWindow();
+      exitTime = time+reg->timeNeededAtWindow;
+      // cout<<"exit time: "<<exitTime<<endl;
+      // int exitTime = time+window->exitTime;
+      //exit time = time(time student gets to window) and time needed.
+    }
+
+    if(exitTime == time){
+      //remove student from window
+
+      reg->leaveWindow();
+      // cout<<"removed "<<endl;
+    }
+    // if()
+    // time++;
+    // if(reg->noStudents()){
+    //   break;
+    // }
+    time++;
+  }
+  meanIdle = (reg->totalIdleTime)/totalStudents;
+  avgStuWait = (reg->totalWaitTime)/totalStudents;
+  cout<<"Mean Student Wait Time: "<< avgStuWait<<endl;
+  cout<<"Median Wait Time: "<< medWaitTime<<endl;
+  cout<<"Longest Student Wait Time: "<< longStuWait<<endl;
+  cout<<"Over 10 Min "<< reg->STUover10<<endl;
+  cout<<"Mean Idle Time: "<<meanIdle<<endl;
+  cout<<"Windows Idle Over 5 Min: "<< reg->over5<<endl;
+
+
+}
 
 
 #endif
